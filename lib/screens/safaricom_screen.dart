@@ -4,8 +4,9 @@ import 'package:logger/logger.dart';
 
 // define a stateful widget for the SafaricomPage
 class SafaricomPage extends StatefulWidget {
-  const SafaricomPage({super.key});
-
+  const SafaricomPage({super.key, required this.name});
+  //the name of the page
+ final String name;
   @override
   // create a state for SafaricomPage
   // ignore: library_private_types_in_public_api
@@ -17,6 +18,7 @@ class _SafaricomPageState extends State<SafaricomPage> {
   // bool variable to check whether balance is visible or not
   // bool variable is set to false meaning balance is not visible
   bool _isBalanceVisible = false;
+
 
   @override
   Widget build(BuildContext context) {
@@ -45,13 +47,21 @@ class _SafaricomPageState extends State<SafaricomPage> {
           SliverToBoxAdapter(
             child: Container(
               padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+             child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Show Balance:',
-                    style: TextStyle(fontSize: 20.0),
+                  Text(
+                    'Welcome, ${widget.name}!',
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
+                  const SizedBox(height: 20), // Add some spacing
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Show Balance:',
+                        style: TextStyle(fontSize: 20.0),
+                      ),
                   Row(
                     children: [
                       //display the balance if _isBalanceVisible is true, otherwise show asterisks
@@ -65,11 +75,13 @@ class _SafaricomPageState extends State<SafaricomPage> {
                           color: Colors.white,
                         ),
                         onPressed: () {
-                           //toggle the visibility of the balance
-                          setState(() {
-                            _isBalanceVisible = !_isBalanceVisible;
-                          });
-                        },
+                            //toggle the visibility of the balance
+                              setState(() {
+                              _isBalanceVisible = !_isBalanceVisible;
+                              });
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),

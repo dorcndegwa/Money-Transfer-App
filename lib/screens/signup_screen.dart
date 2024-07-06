@@ -1,41 +1,66 @@
-// importing necessary flutter materials and specific provider screens
+//importing necessary Flutter materials and specific provider screens
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:money_transfer_app/screens/airtel_screen.dart';
+import 'package:money_transfer_app/screens/login_screen.dart';
 import 'package:money_transfer_app/screens/safaricom_screen.dart';
 import 'package:money_transfer_app/screens/telkom_screen.dart';
+import 'package:money_transfer_app/services/auth_services.dart';
 
-class SignUpPage extends StatelessWidget {
+//signUpPage widget which accepts a provider name
+class SignUpPage extends StatefulWidget {
   final String provider;
 
   const SignUpPage({super.key, required this.provider});
 
   @override
-  Widget build(BuildContext context) {
-    //text controllers to get input from text fields
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController phoneNumberController = TextEditingController();
-    final TextEditingController idNumberController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
+  // ignore: library_private_types_in_public_api
+  _SignUpPageState createState() => _SignUpPageState();
+}
 
+//state class for SignUpPage
+class _SignUpPageState extends State<SignUpPage> {
+  //controllers for handling text input
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController phoneNumberController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  //instance of AuthService for handling authentication
+  final AuthService authService = AuthService();
+  //boolean to check if the widget is still mounted
+  bool isMounted = true;
+
+  //dispose controllers when the widget is removed from the widget tree
+  @override
+  void dispose() {
+    nameController.dispose();
+    phoneNumberController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    isMounted = false;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sign Up for $provider'),
+        title: Text('Sign Up for ${widget.provider}'),
       ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
-              //center content vertically
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
+                const Icon(
                   Icons.account_circle,
                   size: 100,
-                  color: Colors.blue[700],
+                  color: Colors.blue,
                 ),
                 const SizedBox(height: 50),
-                //name textfield
+                //name text field
                 TextField(
                   controller: nameController,
                   decoration: const InputDecoration(
@@ -46,7 +71,7 @@ class SignUpPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                //phone number textfield
+                //phone number text field
                 TextField(
                   controller: phoneNumberController,
                   maxLength: 10,
@@ -58,18 +83,18 @@ class SignUpPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                //id number textfield
+                //email text field
                 TextField(
-                  controller: idNumberController,
+                  controller: emailController,
                   decoration: const InputDecoration(
-                    labelText: 'ID Number (required)',
+                    labelText: 'Email (required)',
                     border: OutlineInputBorder(),
                     filled: true,
                     fillColor: Color.fromARGB(255, 110, 110, 110),
                   ),
                 ),
                 const SizedBox(height: 20),
-                //password textfield
+                //password text field
                 TextField(
                   controller: passwordController,
                   obscureText: true,
@@ -81,47 +106,71 @@ class SignUpPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 40),
+                //sign Up button
                 ElevatedButton(
-                  onPressed: () {
-                    //check if any of the required fields are empty or if the phone number is not 10 characters long
-                      if(nameController.text.isEmpty ||
-                          phoneNumberController.text.isEmpty ||
-                          phoneNumberController.text.length != 10 ||
-                          idNumberController.text.isEmpty ||
-                          passwordController.text.isEmpty) {
-                        //if any condition is not met, display a snack bar with an error message
+                  onPressed: () async {
+                    //check if any required fields are empty or phone number is not 10 characters long
+                    if (nameController.text.isEmpty ||
+                        phoneNumberController.text.isEmpty ||
+                        phoneNumberController.text.length != 10 ||
+                        emailController.text.isEmpty ||
+                        passwordController.text.isEmpty) {
+                      //display error message if validation fails
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Please fill all fields and ensure phone number is 10 characters long.')),
                       );
                       return;
                     }
-                    //use a switch statement to determine which provider page to navigate to based on the 'provider' variable
-                    switch (provider) {
-                      case 'Safaricom':
-                      //navigate to SafaricomPage and replace the current page
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const SafaricomPage()),
-                        );
-                        break;
-                      case 'Airtel':
-                      //navigate to AirtelPage and replace the current page
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const AirtelPage()),
-                        );
-                        break;
-                      case 'Telkom':
-                      //navigate to TelkomPage and replace the current page
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const TelkomPage()),
-                        );
-                        break;
+
+                    //perform sign up logic
+                    User? user = await authService.registerWithEmailAndPassword(
+                      emailController.text.trim(),
+                      passwordController.text.trim(),
+                    );
+
+                    //if user is registered successfully, navigate to the appropriate provider page
+                     if (isMounted && user != null) {
+                      // Use a switch statement to determine which provider page to navigate to based on the 'provider' variable
+                      switch (widget.provider) {
+                        case 'Safaricom':
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => SafaricomPage(name: nameController.text.trim())),
+                          );
+                          break;
+                        case 'Airtel':
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => AirtelPage(name: nameController.text.trim())),
+                          );
+                          break;
+                        case 'Telkom':
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => TelkomPage(name: nameController.text.trim())),
+                          );
+                          break;
+                      }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Registration failed. Please try again.'),
+                        ),
+                      );
                     }
                   },
-                  //defines the text displayed on the button, incorporating the selected provider
-                  child: Text('Proceed to $provider Page'),
+                  child: const Text('Sign Up'),
+                ),
+                const SizedBox(height: 20),
+                //text to navigate to the login page
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    );
+                  },
+                  child: const Text('Already have an account? Login here.'),
                 ),
               ],
             ),

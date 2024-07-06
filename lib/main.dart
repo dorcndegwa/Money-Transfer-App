@@ -1,9 +1,25 @@
 // Importing necessary flutter materials and specific provider screens
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:money_transfer_app/screens/signup_screen.dart';
 
+
 //running the app
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  if(kIsWeb){
+  await Firebase.initializeApp(
+    options: const FirebaseOptions(
+      apiKey: "AIzaSyAsOlls7AKIzTzvSD_6eDbOrP1se0Odxcw",
+    authDomain: "money-app-3a71f.firebaseapp.com",
+    projectId: "money-app-3a71f",
+    storageBucket: "money-app-3a71f.appspot.com",
+    messagingSenderId: "924167316331",
+    appId: "1:924167316331:web:85f067ab4ced579fa3e22e"));
+  } else {
+    await Firebase.initializeApp();
+  }
   runApp(const MyApp());
 }
 

@@ -4,8 +4,9 @@ import 'package:logger/logger.dart';
 
 // define a stateful widget for the AirtelPage
 class AirtelPage extends StatefulWidget {
-  const AirtelPage({super.key});
-
+  const AirtelPage({super.key, required this.name});
+   //the name of the page
+  final String name;
   @override
   // create a state for AirtelPage
   // ignore: library_private_types_in_public_api
@@ -16,6 +17,7 @@ class _AirtelPageState extends State<AirtelPage> {
    // bool variable to check whether balance is visible or not
   // bool variable is set to false meaning balance is not visible
   bool _isBalanceVisible = false;
+  final String name = 'John Doe'; // Replace with actual user name
 
   @override
   Widget build(BuildContext context) {
@@ -45,13 +47,21 @@ class _AirtelPageState extends State<AirtelPage> {
           SliverToBoxAdapter(
             child: Container(
               padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Show Balance:',
-                    style: TextStyle(fontSize: 20.0),
+                  Text(
+                    'Welcome, ${widget.name}!',
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
+                  const SizedBox(height: 20), // Add some spacing
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Show Balance:',
+                        style: TextStyle(fontSize: 20.0),
+                      ),
                   Row(
                     children: [
                       //display the balance if _isBalanceVisible is true, otherwise show asterisks
@@ -71,7 +81,9 @@ class _AirtelPageState extends State<AirtelPage> {
                           setState(() {
                             _isBalanceVisible = !_isBalanceVisible;
                           });
-                        },
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),
